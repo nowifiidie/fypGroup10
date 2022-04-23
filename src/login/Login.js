@@ -8,13 +8,18 @@ import Form from 'react-bootstrap/Form';
 import { useRef, useState } from 'react';
 import { login, useAuth, logout } from '../firebase-config';
 import { useNavigate, useParams, useLocation, Navigate } from "react-router-dom";
+import db from "../firebase-config";
+import { useEffect } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+
+
 
 
 
 // eslint-disable-next-line react/prop-types
 function Login({ setIsAuth }) {
-    let navigate = useNavigate();
 
+    let navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
     const currentUser = useAuth();
@@ -24,6 +29,8 @@ function Login({ setIsAuth }) {
 
     let loginSuc = true;
     let from = location.state?.from?.pathname || "/";
+
+ 
 
     async function handleLogin() {
         setLoading(true);
@@ -38,12 +45,15 @@ function Login({ setIsAuth }) {
         }
         setLoading(false);
 
+
+
         if (loginSuc == true) {
 
             navigate(from, { replace: true });
+            
         }
-
-
+        
+        
 
     }
 

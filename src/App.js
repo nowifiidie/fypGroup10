@@ -10,6 +10,9 @@ import { useState, useEffect } from "react";
 import { logout, useAuth } from "./firebase-config";
 import { collection, onSnapshot } from "firebase/firestore";
 import db from "./firebase-config";
+import ProtectedRoutes from "./admin/ProtectedRoutes";
+import LandingPageAdmin from "./admin/landingpage";
+import AccountPageAdmin from "./admin/adminaccount";
 
 
 function App() {
@@ -21,6 +24,7 @@ function App() {
   let logoutSuc = true;
 
 
+
   async function handleLogout() {
     setLoading(true);
     try {
@@ -29,11 +33,12 @@ function App() {
       alert("Error!");
     }
     setLoading(false);
+    document.getElementById("loginLink").style.display = "block";
     navigate("/login");
   }
 
 
-
+ 
   function isLogin() {
     console.log(111);
     if (logoutSuc == true) {
@@ -48,15 +53,22 @@ function App() {
 
   const [users, setUsers] = useState([]);
 
-  const loginUser =  users.find(user => (user.email == currentUser?.email))
+  const loginUser = users.find(user => (user.email == currentUser?.email))
 
   useEffect(
-      () =>
-          onSnapshot(collection(db, "users"), (snapshot) =>
-              setUsers(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-          ),
-      []
+    () =>
+      onSnapshot(collection(db, "users"), (snapshot) =>
+        setUsers(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+      ),
+    []
   );
+
+  let isAdmin = false;
+
+  if (loginUser?.role == "admin") {
+    isAdmin = true;
+  }
+
 
 
   return (
@@ -66,6 +78,7 @@ function App() {
 
         <Link to="/"> Home </Link>
         <Link id="loginLink" to="/login">Login </Link>
+        <Link to="/admin"> Admin </Link>
 
         <button disabled={loading || !currentUser} onClick={handleLogout}>Log Out</button>
 
@@ -76,7 +89,14 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<SingUpUi />} />
         <Route path="*" element={<ErrorPageUi />} />
+
+        <Route element={<ProtectedRoutes isAdmin />}>
+          <Route path="admin" element={<LandingPageAdmin />} />
+          <Route path="/account" element={<AccountPageAdmin />} />
+        </Route>
+
       </Routes>
+
     </div>
 
   );
